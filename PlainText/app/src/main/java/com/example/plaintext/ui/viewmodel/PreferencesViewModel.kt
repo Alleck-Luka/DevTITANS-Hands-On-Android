@@ -20,24 +20,37 @@ data class PreferencesState(
 
 @HiltViewModel
 class PreferencesViewModel @Inject constructor(
-    handle: SavedStateHandle,
+    private val handle: SavedStateHandle,
 ) : ViewModel() {
-    var preferencesState by mutableStateOf(PreferencesState(login = "devtitans", password = "123", preencher = true))
+
+    companion object {
+        private const val KEY_LOGIN = "login"
+        private const val KEY_PASSWORD = "password"
+        private const val KEY_PREENCHER = "preencher"
+    }
+    var preferencesState by mutableStateOf(
+        PreferencesState(
+            login = handle[KEY_LOGIN] ?: "devtitans",
+            password = handle[KEY_PASSWORD] ?: "123",
+            preencher = handle[KEY_PREENCHER] ?: true))
         private set
 
     fun updateLogin(login: String) {
-
+        preferencesState = preferencesState.copy(login = login)
+        handle[KEY_LOGIN] = login
     }
 
     fun updatePassword(password: String) {
-
+        preferencesState = preferencesState.copy(password = password)
+        handle[KEY_PASSWORD] = password
     }
 
     fun updatePreencher(preencher: Boolean) {
-
+        preferencesState = preferencesState.copy(preencher = preencher)
+        handle[KEY_PREENCHER] = preencher
     }
 
-    fun checkCredentials(login: String, password: String): Boolean{
+    fun checkCredentials(login: String, password: String): Boolean {
         return login == preferencesState.login && password == preferencesState.password
     }
 }
