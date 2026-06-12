@@ -21,9 +21,27 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DataDiModule {
+
     @Provides
     @Singleton
+    fun provideDatabase(
+        @ApplicationContext context: Context
+    ): PlainTextDatabase =
+        Room.databaseBuilder(
+            context,
+            PlainTextDatabase::class.java,
+            "plaintext.db"
+        ).build()
+
+    @Provides
     fun providePasswordDao(
+        database: PlainTextDatabase
+    ): PasswordDao =
+        database.passwordDao()
+
+    @Provides
+    @Singleton
+    fun providePasswordDBStore(
         passwordDao: PasswordDao
     ): PasswordDBStore = LocalPasswordDBStore(passwordDao)
 
