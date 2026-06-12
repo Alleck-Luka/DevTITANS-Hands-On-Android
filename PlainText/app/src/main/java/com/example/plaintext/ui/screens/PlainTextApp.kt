@@ -11,6 +11,7 @@ import com.example.plaintext.ui.screens.hello.Hello_screen
 import com.example.plaintext.ui.screens.list.ListView
 import com.example.plaintext.ui.screens.login.Login_screen
 import com.example.plaintext.ui.screens.preferences.SettingsScreen
+import com.example.plaintext.ui.viewmodel.ListViewModel
 import com.example.plaintext.ui.viewmodel.PreferencesViewModel
 import com.example.plaintext.utils.parcelableType
 import kotlin.reflect.typeOf
@@ -20,6 +21,7 @@ fun PlainTextApp(
     appState: JetcasterAppState = rememberJetcasterAppState()
 ) {
     val preferencesViewModel: PreferencesViewModel = hiltViewModel()
+    val listViewModel: ListViewModel = hiltViewModel()
 
     NavHost(
         navController = appState.navController,
@@ -48,7 +50,28 @@ fun PlainTextApp(
             )
         }
         composable<Screen.List> {
-            ListView()
+            ListView(
+                navigateToAdd = {
+                    appState.navController.navigate(
+                        Screen.EditList(
+                            PasswordInfo(
+                                id = 0,
+                                name = "",
+                                login = "",
+                                password = "",
+                                notes = ""
+                            )
+                        )
+                    )
+                },
+                navigateToEdit = { password ->
+                    appState.navController.navigate(Screen.EditList(password))
+                },
+                navigateToSettings = {
+                    appState.navigateToPreferences()
+                }
+
+            )
         }
         composable<Screen.EditList>(
             typeMap = mapOf(typeOf<PasswordInfo>() to parcelableType<PasswordInfo>())
@@ -59,7 +82,10 @@ fun PlainTextApp(
                 navigateBack = {
                     appState.navController.popBackStack()
                 },
-                savePassword = { password -> Unit }
+                savePassword = { password ->
+                    println("CHEGOU NO NAVHOST: ${password.name}")
+                    listViewModel.savePassword(password)
+                }
             )
         }
     }
